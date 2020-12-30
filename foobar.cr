@@ -8,6 +8,14 @@ enum Activity
   SellFooBar
 end
 
+enum Production
+  Buy
+  Sell
+end
+
+alias ActivityChannel = Nil | Foo | Bar | FooBar | Production
+alias StockChannel = Array(Foo) | Array(Bar) | Array(FooBar) | Int32
+
 class FooBar
   def initialize(foo : Foo, bar : Bar)
     @foo = foo
@@ -37,29 +45,43 @@ class Robot
   @changing_activity_time : Float64
   @mine_bar_min_time : Float64
   @mine_bar_max_time : Float64
+  @assemble_foo_bar_time : Float64
+  @sell_foo_bar_time : Float64
 
-  def initialize(id : Int32, channel : Channel(Nil | Foo | Bar | FooBar), stock_channel : Channel(Array(Foo) | Array(Bar)))
+  def initialize(id : Int32, channel : Channel(ActivityChannel), stock_channel : Channel(StockChannel))
     @id = id
     @changing_activity_time = 0
     @mine_foo_time = 0
     @mine_bar_min_time = 0
     @mine_bar_max_time = 0
+    @assemble_foo_bar_time = 0
+    @sell_foo_bar_time = 0
     @channel = channel
     @stock_channel = stock_channel
+  end
+
+  def id
+    @id
   end
 
   def choose_activity
     new_activity = Activity.new(Random.new.rand(Activity.values.size))
     foos = [] of Foo
     bars = [] of Bar
+    foobars = [] of FooBar
+    money : Int32 = 0
 
-    2.times do
+    4.times do
       value = @stock_channel.receive
       case value
       when Array(Foo)
         foos = value
       when Array(Bar)
         bars = value
+      when Array(FooBar)
+        foobars = value
+      when Int32
+        money = value
       end
     end
 
@@ -86,14 +108,25 @@ class Robot
       latest_foo = foos.pop?
       latest_bar = bars.pop?
 
-      if  latest_foo && latest_bar
+      if latest_foo && latest_bar
         puts "##### #{latest_foo} + #{latest_bar}"
         foobar = self.assemble_foo_and_bar(latest_foo, latest_bar)
-        @channel.send(foobar)
+        if foobar
+          @channel.send(foobar)
+        else
+          # We keep the bar if it fails
+          bars << latest_bar
+          @channel.send(nil)
+        end
       else
         @channel.send(nil)
       end
-
+    when Activity::SellFooBar
+      self.sell_foo_bar(foobars)
+      @channel.send(Production::Sell)
+    when Activity::BuyRobot
+      self.buy_robot(foos, money)
+      @channel.send(Production::Buy)
     else
       @channel.send(nil)
     end
@@ -116,39 +149,66 @@ class Robot
     Foo.new(foo_value)
   end
 
-  def assemble_foo_and_bar(foo : Foo, bar : Bar) : FooBar
-    FooBar.new(foo, bar)
+  def assemble_foo_and_bar(foo : Foo, bar : Bar) : Nil | FooBar
+    sleep @assemble_foo_bar_time.seconds
+    random = Random.new.rand(100)
+
+    puts "Random: #{random}"
+    if random < 60
+      FooBar.new(foo, bar)
+    end
+  end
+
+  def sell_foo_bar(foobars : Array(FooBar))
+    puts "#{@id} - Selling foobar"
+
+    # Sell at most 5 foobars
+    foobars.pop(5)
+  end
+
+  def buy_robot(foos : Array(Foo), money : Int32) : Bool
+    puts "#{@id} - Buying robot"
+
+    if money >= 3 && foos.size >= 6
+      foos.pop(6)
+      true
+    else
+      false
+    end
   end
 end
 
-activity_channel = Channel(Nil | Foo | Bar | FooBar).new
-stock_channel = Channel(Array(Foo) | Array(Bar)).new
+activity_channel = Channel(ActivityChannel).new
+stock_channel = Channel(StockChannel).new
 
 start_time = Time.monotonic
 
-robots_size = 2
+money = 0
+
 robots = [] of Robot
 foos = [] of Foo
 bars = [] of Bar
 foobars = [] of FooBar
 
 # Create the good number of robots
-robots_size.times do |i|
+2.times do |i|
   robot = Robot.new(i, activity_channel, stock_channel)
   robots << robot
 end
 
-# Do 6 rounds for now
-6.times do
+while robots.size < 60
+
   # Spawn a task per robot
   robots.each do |robot|
     spawn robot.choose_activity
     stock_channel.send(foos)
     stock_channel.send(bars)
+    stock_channel.send(foobars)
+    stock_channel.send(money)
   end
 
   # Wating for the activities results
-  robots_size.times do |i|
+  robots.size.times do |i|
     value = activity_channel.receive
 
     puts "# Received #{value}"
@@ -160,6 +220,13 @@ end
       bars << value
     when FooBar
       foobars << value
+    when Production::Sell
+      money += 1
+    when Production::Buy
+      money -= 3
+      # Add a new Robot
+      robot = Robot.new(robots.last.id + 1, activity_channel, stock_channel)
+      robots << robot
     end
   end
 end
@@ -170,6 +237,10 @@ puts "-> List of Bar (#{bars.size})"
 puts bars
 puts "-> List of FooBar (#{foobars.size})"
 puts foobars
+puts "-> List of Robots (#{robots.size})"
+robots.each do |robot|
+  puts robot.id
+end
 
 end_time = Time.monotonic
 puts "Execution time: #{end_time - start_time}"
