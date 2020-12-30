@@ -33,7 +33,3 @@ Le jeu s'arrête quand on a 30 robots.
 Note:
 1 seconde du jeu n'a pas besoin d'être une seconde réelle.
 Le choix des actvités n'a _pas besoin d'être optimal_ (pas besoin de faire des maths), seulement fonctionnel.
-
-## Useful links
-
-- https://blog.logrocket.com/a-practical-guide-to-async-in-rust/
