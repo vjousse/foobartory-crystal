@@ -24,6 +24,8 @@ class Robot
 
 end
 
+start_time = Time.monotonic
+
 robots_size = 2
 robots = [] of Robot
 
@@ -37,3 +39,6 @@ end
 Fiber.yield
 
 puts robots
+
+end_time = Time.monotonic
+puts "Execution time: #{end_time - start_time}"
