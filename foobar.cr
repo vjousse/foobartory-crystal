@@ -8,9 +8,21 @@ enum Activity
   SellFooBar
 end
 
-alias Foo = String
-alias Bar = String
 alias FooBar = Tuple(Foo, Bar)
+
+class Foo
+  def initialize(value : String)
+    @value = value
+  end
+end
+
+
+class Bar
+  def initialize(value : String)
+    @value = value
+  end
+end
+
 
 class Robot
   @last_activity : Nil | Activity
@@ -49,41 +61,51 @@ class Robot
     when Activity::MineBar
       bar = self.mine_bar
       @channel.send(bar)
+    when Activity::AssembleFooAndBar
+      bar = self.mine_bar
+      @channel.send(bar)
     else
       @channel.send(nil)
     end
 
   end
 
-  def mine_bar()
+  def mine_bar() : Bar
     puts "#{@id} - Mining bar"
     mining_duration = Random.new.rand(@mine_bar_min_time..@mine_bar_max_time)
     sleep mining_duration.seconds
     bar_value = UUID.random.to_s
     puts "#{@id} - Ended mining bar in #{mining_duration} seconds, #{bar_value}"
-    bar_value
+    Bar.new(bar_value)
   end
 
-  def mine_foo() : String
+  def mine_foo() : Foo
     puts "#{@id} - Mining foo"
     sleep @mine_foo_time.seconds
     foo_value = UUID.random.to_s
     puts "#{@id} - Ended mining foo #{foo_value}"
-    foo_value
+    Foo.new(foo_value)
+  end
+
+  def assemble_foo_and_bar(foo : Foo, bar : Bar) : FooBar
+    { foo, bar }
   end
 
 end
 
-channel = Channel(Nil|Foo|Bar|FooBar).new
+activity_channel = Channel(Nil|Foo|Bar|FooBar).new
 
 start_time = Time.monotonic
 
 robots_size = 2
 robots = [] of Robot
+foos = [] of Foo
+bars = [] of Bar
+foobars = [] of FooBar
 
 # Create the good number of robots
 robots_size.times do |i|
-  robot = Robot.new(i, channel)
+  robot = Robot.new(i, activity_channel)
   robots << robot
 end
 
@@ -94,14 +116,30 @@ end
     spawn robot.choose_activity
   end
 
+  # Wating for the activities results
   robots_size.times do |i|
-    value = channel.receive
+    value = activity_channel.receive
+
     puts "# Received #{value}"
+
+    case value
+    when Foo
+      foos << value
+    when Bar
+      bars << value
+    when FooBar
+      foobars << value
+    end
   end
 end
 
 
-puts robots
+puts "-> List of Foo"
+puts foos
+puts "-> List of Bar"
+puts bars
+puts "-> List of FooBar"
+puts foobars
 
 end_time = Time.monotonic
 puts "Execution time: #{end_time - start_time}"
