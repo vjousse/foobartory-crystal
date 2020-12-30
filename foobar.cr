@@ -125,8 +125,11 @@ class Robot
       self.sell_foo_bar(foobars)
       @channel.send(Production::Sell)
     when Activity::BuyRobot
-      self.buy_robot(foos, money)
-      @channel.send(Production::Buy)
+      if self.buy_robot(foos, money)
+        @channel.send(Production::Buy)
+      else
+        @channel.send(nil)
+      end
     else
       @channel.send(nil)
     end
@@ -153,7 +156,6 @@ class Robot
     sleep @assemble_foo_bar_time.seconds
     random = Random.new.rand(100)
 
-    puts "Random: #{random}"
     if random < 60
       FooBar.new(foo, bar)
     end
@@ -167,7 +169,7 @@ class Robot
   end
 
   def buy_robot(foos : Array(Foo), money : Int32) : Bool
-    puts "#{@id} - Buying robot"
+    puts "#{@id} - Buying robot, money #{money}€"
 
     if money >= 3 && foos.size >= 6
       foos.pop(6)
@@ -197,6 +199,7 @@ foobars = [] of FooBar
 end
 
 while robots.size < 60
+  puts "## Size #{robots.size} | Money #{money}"
 
   # Spawn a task per robot
   robots.each do |robot|
@@ -211,8 +214,6 @@ while robots.size < 60
   robots.size.times do |i|
     value = activity_channel.receive
 
-    puts "# Received #{value}"
-
     case value
     when Foo
       foos << value
@@ -223,24 +224,23 @@ while robots.size < 60
     when Production::Sell
       money += 1
     when Production::Buy
-      money -= 3
-      # Add a new Robot
-      robot = Robot.new(robots.last.id + 1, activity_channel, stock_channel)
-      robots << robot
+      if robots.size < 60
+        money -= 3
+        # Add a new Robot
+        robot = Robot.new(robots.last.id + 1, activity_channel, stock_channel)
+        robots << robot
+      else
+        break
+      end
     end
   end
 end
 
 puts "-> List of Foo (#{foos.size})"
-puts foos
 puts "-> List of Bar (#{bars.size})"
-puts bars
 puts "-> List of FooBar (#{foobars.size})"
-puts foobars
 puts "-> List of Robots (#{robots.size})"
-robots.each do |robot|
-  puts robot.id
-end
+puts "-> Money #{money}€"
 
 end_time = Time.monotonic
 puts "Execution time: #{end_time - start_time}"
