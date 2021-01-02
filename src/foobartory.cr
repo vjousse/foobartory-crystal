@@ -3,8 +3,6 @@ require "uuid"
 module Foobartory
   VERSION = "0.1.0"
 
-  # TODO: Put your code here
-  #
   enum Activity
     AssembleFooAndBar
     BuyRobot
@@ -114,7 +112,6 @@ module Foobartory
         latest_bar = bars.pop?
 
         if latest_foo && latest_bar
-          puts "##### #{latest_foo} + #{latest_bar}"
           foobar = self.assemble_foo_and_bar(latest_foo, latest_bar)
           if foobar
             @channel.send(foobar)
