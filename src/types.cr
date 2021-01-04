@@ -1,4 +1,5 @@
 require "habitat"
+require "log"
 
 module Foobartory
   VERSION = "0.1.0"

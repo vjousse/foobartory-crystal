@@ -1,2 +1,2 @@
 require "spec"
-require "../src/foobartory"
+require "../src/types.cr"

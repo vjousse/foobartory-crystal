@@ -1,5 +1,4 @@
 require "./spec_helper"
-require "../src/foobartory.cr"
 
 describe Foobartory do
   activity_channel = Channel(Foobartory::ActivityChannel).new
