@@ -1,6 +1,65 @@
 # Foobartory
 
-## Avant-propos
+## Installation
+
+1. [Install Crystal Lang](https://crystal-lang.org/install/)
+2. Clone the project `git clone git@github.com:vjousse/foobartory-crystal.git`
+3. Change directory `cd foobartory-crystal`
+4. Install dependencies `shards install`
+5. Build the project `shards build`
+6. Enjoy :)
+
+## Usage
+
+To start the project with the default configuration, in the project directory run:
+
+    ./bin/foobartory
+
+## Configuration
+
+If you want to change some configuration, you can tweak the `.env` file with your own values. Here are the provided defaults:
+
+    FB_CHANGING_ACTIVITY_TIME_SEC=5
+    FB_MINE_FOO_TIME_SEC=1
+    FB_MINE_BAR_MIN_TIME_SEC=0.5
+    FB_MINE_BAR_MAX_TIME_SEC=2
+    FB_ASSEMBLE_FOO_BAR_TIME_SEC=2
+    FB_SELL_FOO_BAR_TIME_SEC=10
+
+You can also override a value directly on the CLI using an environment variable, for example to set the changing time activity to 0 seconds, just start the project this way:
+
+    FB_CHANGING_ACTIVITY_TIME_SEC=0 ./bin/foobartory
+
+You can tweak the log level by changing the `LOG_LEVEL` environment variable, for example:
+
+    FB_CHANGING_ACTIVITY_TIME_SEC=0 LOG_LEVEL=INFO ./bin/foobartory
+
+## Development
+
+For development, [install watchexec](https://github.com/watchexec/watchexec) to watch for file changes. Then, you can run the project like this:
+
+    FB_CHANGING_ACTIVITY_TIME_SEC=5 LOG_LEVEL=INFO ./dev/watch.sh foobartory
+
+It will recompile and run the project after every file change.
+
+## Testing
+
+You need to make sure to install the Crystal dependencies.
+
+1. [Install watchexec](https://github.com/watchexec/watchexec) to watch for file changes
+2. Run `./dev/watch-spec.sh`from the project root
+
+## Contributing
+
+1. Fork it (<https://github.com/your-github-user/foobartory/fork>)
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
+
+## Problem to solve
+
+# Avant-propos
 
 -   Utilise le langage de ton choix
 -   Un output console est suffisant
@@ -9,7 +68,7 @@
 -   Le projet est pensé pour durer environ 3 heures. Nous sommes conscients que tu as d'autres obligations, et nous ne te demandons donc pas la réponse optimale.
 -   N'hésite pas à nous contacter si tu as des questions.
 
-## Enoncé
+# Enoncé
 
 Le but est de coder une chaîne de production automatique de `foobar`.
 
