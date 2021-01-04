@@ -11,3 +11,7 @@ targets:
 crystal: 0.35.1
 
 license: MIT
+
+dependencies:
+  habitat:
+    github: luckyframework/habitat
