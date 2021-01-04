@@ -1,9 +1,15 @@
-require "uuid"
+require "dotenv"
 require "log"
+require "uuid"
 
 require "./types.cr"
 
 include Foobartory
+
+# Load .env file if any
+if Dotenv.load?
+  Log.info &.emit("Loading .env file")
+end
 
 Log.setup_from_env
 
@@ -11,12 +17,12 @@ Log.info { "Starting the foobartory" }
 
 # Configure the robots settings
 Robot.configure do |settings|
-  settings.changing_activity_time_sec = 0
-  settings.mine_foo_time_sec = 0
-  settings.mine_bar_min_time_sec = 0
-  settings.mine_bar_max_time_sec = 0
-  settings.assemble_foo_bar_time_sec = 0
-  settings.sell_foo_bar_time_sec = 0
+  settings.changing_activity_time_sec = (ENV["FB_CHANGING_ACTIVITY_TIME_SEC"] ||= "5").to_f64
+  settings.mine_foo_time_sec = (ENV["FB_MINE_FOO_TIME_SEC"] ||= "1").to_f64
+  settings.mine_bar_min_time_sec = (ENV["FB_MINE_BAR_MIN_TIME_SEC"] ||= "0.5").to_f64
+  settings.mine_bar_max_time_sec = (ENV["FB_MINE_BAR_MAX_TIME_SEC"] ||= "2").to_f64
+  settings.assemble_foo_bar_time_sec = (ENV["FB_ASSEMBLE_FOO_BAR_TIME_SEC"] ||= "2").to_f64
+  settings.sell_foo_bar_time_sec = (ENV["FB_SELL_FOO_BAR_TIME_SEC"] ||= "10").to_f64
 end
 
 Habitat.raise_if_missing_settings!
