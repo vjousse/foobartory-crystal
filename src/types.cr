@@ -43,7 +43,6 @@ module Foobartory
   end
 
   class Robot
-
     Habitat.create do
       setting changing_activity_time_sec : Float64
       setting mine_foo_time_sec : Float64
@@ -52,7 +51,6 @@ module Foobartory
       setting assemble_foo_bar_time_sec : Float64
       setting sell_foo_bar_time_sec : Float64
     end
-
 
     @last_activity : Nil | Activity
     @id : Int32
@@ -181,5 +179,4 @@ module Foobartory
       end
     end
   end
-
 end
