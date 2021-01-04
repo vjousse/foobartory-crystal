@@ -19,7 +19,6 @@ Robot.configure do |settings|
   settings.sell_foo_bar_time_sec = 0
 end
 
-
 Habitat.raise_if_missing_settings!
 
 activity_channel = Channel(ActivityChannel).new
