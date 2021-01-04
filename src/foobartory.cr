@@ -1,12 +1,17 @@
 require "uuid"
+require "log"
 
 require "./types.cr"
 
 include Foobartory
 
+Log.setup_from_env
+
+Log.info { "Starting the foobartory" }
+
 # Configure the robots settings
 Robot.configure do |settings|
-  settings.changing_activity_time_sec = 5
+  settings.changing_activity_time_sec = 0
   settings.mine_foo_time_sec = 0
   settings.mine_bar_min_time_sec = 0
   settings.mine_bar_max_time_sec = 0
@@ -36,7 +41,7 @@ foobars = [] of FooBar
 end
 
 while robots.size < 60
-  puts "## Size #{robots.size} | Money #{money}"
+  Log.info { "## Nb of robots #{robots.size} | Money #{money}" }
 
   # Spawn a task per robot
   robots.each do |robot|
@@ -73,11 +78,12 @@ while robots.size < 60
   end
 end
 
-puts "-> List of Foo (#{foos.size})"
-puts "-> List of Bar (#{bars.size})"
-puts "-> List of FooBar (#{foobars.size})"
-puts "-> List of Robots (#{robots.size})"
-puts "-> Money #{money}€"
+Log.info { "# of Foo: #{foos.size}" }
+Log.info { "# of Bar: #{bars.size}" }
+Log.info { "# of FooBar: #{foobars.size}" }
+Log.info { "# of Robots: #{robots.size}" }
+Log.info { "=> Money #{money}€" }
 
 end_time = Time.monotonic
-puts "Execution time: #{end_time - start_time}"
+
+Log.info { "=> Execution time: #{end_time - start_time}" }
