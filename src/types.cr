@@ -89,15 +89,15 @@ module Foobartory
       end
 
       if new_activity != @last_activity
-        puts "#{@id} - Changing activity from #{@last_activity} to #{new_activity}"
+        Log.debug { "#{@id} - Changing activity from #{@last_activity} to #{new_activity}" }
 
         # Changing activities takes X seconds
         sleep settings.changing_activity_time_sec.seconds
         @last_activity = new_activity
 
-        puts "#{@id} - Activity changed to #{new_activity}"
+        Log.debug { "#{@id} - Activity changed to #{new_activity}" }
       else
-        puts "#{@id} - Activity is the same #{new_activity}"
+        Log.debug { "#{@id} - Activity is the same #{new_activity}" }
       end
 
       case new_activity
@@ -138,19 +138,19 @@ module Foobartory
     end
 
     def mine_bar : Bar
-      puts "#{@id} - Mining bar"
+      Log.debug { "#{@id} - Mining bar" }
       mining_duration = Random.new.rand(settings.mine_bar_min_time_sec..settings.mine_bar_max_time_sec)
       sleep mining_duration.seconds
       bar_value = UUID.random.to_s
-      puts "#{@id} - Ended mining bar in #{mining_duration} seconds, #{bar_value}"
+      Log.debug { "#{@id} - Ended mining bar in #{mining_duration} seconds, #{bar_value}" }
       Bar.new(bar_value)
     end
 
     def mine_foo : Foo
-      puts "#{@id} - Mining foo"
+      Log.debug { "#{@id} - Mining foo" }
       sleep settings.mine_foo_time_sec.seconds
       foo_value = UUID.random.to_s
-      puts "#{@id} - Ended mining foo #{foo_value}"
+      Log.debug { "#{@id} - Ended mining foo #{foo_value}" }
       Foo.new(foo_value)
     end
 
@@ -164,14 +164,14 @@ module Foobartory
     end
 
     def sell_foo_bar(foobars : Array(FooBar))
-      puts "#{@id} - Selling foobar"
+      Log.debug { "#{@id} - Selling foobar" }
 
       # Sell at most 5 foobars
       foobars.pop(5)
     end
 
     def buy_robot(foos : Array(Foo), money : Int32) : Bool
-      puts "#{@id} - Buying robot, money #{money}€"
+      Log.debug { "#{@id} - Buying robot, money #{money}€" }
 
       if money >= 3 && foos.size >= 6
         foos.pop(6)
