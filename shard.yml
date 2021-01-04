@@ -13,5 +13,7 @@ crystal: 0.35.1
 license: MIT
 
 dependencies:
+  dotenv:
+    github: gdotdesign/cr-dotenv
   habitat:
     github: luckyframework/habitat
